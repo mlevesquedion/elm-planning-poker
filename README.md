@@ -15,7 +15,7 @@ $ ./build.sh
 $ ./run.sh
 ```
 
-Open the browser at (http://localhost:8123/index.html)
+Open the browser at (http://localhost:8080/index.html)
 
 ## Development
 
