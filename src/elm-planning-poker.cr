@@ -137,5 +137,5 @@ ws "/app" do |socket|
   end
 end
 
-Kemal.config.port = 8123
+Kemal.config.port = 8080
 Kemal.run

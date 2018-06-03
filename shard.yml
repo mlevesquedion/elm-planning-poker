@@ -1,4 +1,4 @@
-name: kemal-chat-elm
+name: elm-planning-poker
 version: 0.1.0
 
 dependencies:
@@ -7,6 +7,6 @@ dependencies:
     branch: master
 
 authors:
-  -  Mario Martinez
+  -  Michael Levesque-Dion
 
 license: MIT
