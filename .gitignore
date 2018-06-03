@@ -1,0 +1,6 @@
+/doc/
+/libs/
+/.crystal/
+/.shards/
+/elm/elm-stuff
+.DS_store

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Planning poker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="elm.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    const websocketProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const websocketHost = `${websocketProtocol}//${location.host}/app`;
+
+    Elm.Main.fullscreen({
+      websocketHost: websocketHost
+    });
+  </script>
+</body>
+
+</html>
