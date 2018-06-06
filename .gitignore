@@ -3,4 +3,5 @@
 /.crystal/
 /.shards/
 /elm/elm-stuff
+/elm-stuff
 .DS_store

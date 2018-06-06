@@ -18280,7 +18280,11 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: _debois$elm_mdl$Material_Layout$fixedHeader,
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _debois$elm_mdl$Material_Layout$scrolling,
+				_1: {ctor: '[]'}
+			}
 		},
 		{
 			header: {

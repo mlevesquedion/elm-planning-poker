@@ -432,6 +432,7 @@ view model =
     Layout.render Mdl
         model.mdl
         [ Layout.fixedHeader
+        , Layout.scrolling
         ]
         { header =
             [ h1
