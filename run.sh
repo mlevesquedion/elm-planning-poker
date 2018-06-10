@@ -1,4 +1,6 @@
+echo Compiling Elm code
 elm make elm/src/Main.elm --output public/elm.js
-crystal run src/elm-planning-poker.cr &
-sleep 5
-open http://localhost:8123/index.html
+echo Starting server
+crystal run src/elm-planning-poker.cr
+echo Opening in browser
+open http://localhost:8080/index.html

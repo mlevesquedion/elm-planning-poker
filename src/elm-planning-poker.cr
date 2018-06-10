@@ -139,9 +139,17 @@ ws "/app" do |socket|
   end
 
   socket.on_close do |_|
-    rooms.each_value do |room|
+    rooms.each_key do |room_number|
+      room = rooms[room_number]
       if room.dealer == socket
-        rooms.delete(room)
+        puts "Dealer has left."
+        room.players.each do |player|
+          puts "Telling player #{player} the dealer has left."
+          json_message = ({"type": "dealer_left"}.to_json)
+          player.send json_message
+        end
+        puts "Deleting room #{room}."
+        rooms.delete(room_number)
       else
         room.players.each do |player|
           if player == socket
@@ -156,5 +164,5 @@ ws "/app" do |socket|
   end
 end
 
-Kemal.config.port = 8080
+Kemal.config.port = 8666
 Kemal.run

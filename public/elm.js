@@ -16891,6 +16891,7 @@ var _user$project$Main$Model = function (a) {
 };
 var _user$project$Main$Bidder = {ctor: 'Bidder'};
 var _user$project$Main$Dealer = {ctor: 'Dealer'};
+var _user$project$Main$DealerLeftPage = {ctor: 'DealerLeftPage'};
 var _user$project$Main$ResultsPage = {ctor: 'ResultsPage'};
 var _user$project$Main$VotingPage = {ctor: 'VotingPage'};
 var _user$project$Main$JoinFailure = {ctor: 'JoinFailure'};
@@ -16944,6 +16945,10 @@ var _user$project$Main$decodeServerMsg = F2(
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{voting: false});
+			case 'dealer_left':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{page: _user$project$Main$DealerLeftPage, roomNumber: ''});
 			case 'room_success':
 				var userId = A2(
 					_elm_lang$core$Json_Decode$decodeString,
@@ -17299,6 +17304,75 @@ var _user$project$Main$viewJoinFailure = function (model) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html$text('No such room. 😔'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_debois$elm_mdl$Material_Card$actions,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A5(
+							_debois$elm_mdl$Material_Button$render,
+							_user$project$Main$Mdl,
+							{
+								ctor: '::',
+								_0: 3,
+								_1: {
+									ctor: '::',
+									_0: 0,
+									_1: {ctor: '[]'}
+								}
+							},
+							model.mdl,
+							{
+								ctor: '::',
+								_0: _debois$elm_mdl$Material_Button$raised,
+								_1: {
+									ctor: '::',
+									_0: _debois$elm_mdl$Material_Button$colored,
+									_1: {
+										ctor: '::',
+										_0: _debois$elm_mdl$Material_Button$ripple,
+										_1: {
+											ctor: '::',
+											_0: _debois$elm_mdl$Material_Options$onClick(_user$project$Main$GoHome),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Back to safety'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Main$viewDealerLeftPage = function (model) {
+	return A2(
+		_debois$elm_mdl$Material_Card$view,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_debois$elm_mdl$Material_Card$title,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_debois$elm_mdl$Material_Card$head,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('The dealer has left... 🤦'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}
@@ -17878,7 +17952,7 @@ var _user$project$Main$viewResultsPage = function (model) {
 												{ctor: '[]'},
 												{
 													ctor: '::',
-													_0: _elm_lang$html$Html$text('Votes: '),
+													_0: _elm_lang$html$Html$text('Votes : '),
 													_1: {ctor: '[]'}
 												}),
 											_1: {ctor: '[]'}
@@ -18299,8 +18373,10 @@ var _user$project$Main$viewPage = function (model) {
 				return _user$project$Main$viewJoinFailure(model);
 			case 'VotingPage':
 				return _elm_lang$core$String$isEmpty(model.currentGoal) ? _user$project$Main$viewJoinSuccess(model) : _user$project$Main$viewVotingPage(model);
-			default:
+			case 'ResultsPage':
 				return _user$project$Main$viewResultsPage(model);
+			default:
+				return _user$project$Main$viewDealerLeftPage(model);
 		}
 	}();
 	return A3(

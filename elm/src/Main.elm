@@ -55,6 +55,7 @@ type Page
     | JoinFailure
     | VotingPage
     | ResultsPage
+    | DealerLeftPage
 
 
 type Error
@@ -199,6 +200,9 @@ decodeServerMsg json model =
         case type_ of
             "stop_voting" ->
                 { model | voting = False }
+
+            "dealer_left" ->
+                { model | page = DealerLeftPage, roomNumber = "" }
 
             "room_success" ->
                 let
@@ -508,6 +512,9 @@ viewPage model =
                 ResultsPage ->
                     viewResultsPage model
 
+                DealerLeftPage ->
+                    viewDealerLeftPage model
+
         serverError =
             model.serverError
     in
@@ -673,6 +680,26 @@ viewJoinFailure model =
     Card.view []
         [ Card.title []
             [ Card.head [] [ text ("No such room. 😔") ] ]
+        , Card.actions
+            []
+            [ Button.render Mdl
+                [ 3, 0 ]
+                model.mdl
+                [ Button.raised
+                , Button.colored
+                , Button.ripple
+                , Options.onClick GoHome
+                ]
+                [ text "Back to safety" ]
+            ]
+        ]
+
+
+viewDealerLeftPage : Model -> Html Msg
+viewDealerLeftPage model =
+    Card.view []
+        [ Card.title []
+            [ Card.head [] [ text ("The dealer has left... \x1F926") ] ]
         , Card.actions
             []
             [ Button.render Mdl
@@ -855,7 +882,7 @@ viewResultsPage model =
         , Grid.cell [ Grid.size Grid.All 6 ]
             [ Card.view []
                 [ Card.title []
-                    [ Card.head [] [ text <| "Votes: " ] ]
+                    [ Card.head [] [ text <| "Votes : " ] ]
                 , Card.actions []
                     (List.map
                         renderPlayerWithVote
