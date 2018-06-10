@@ -84,6 +84,7 @@ type alias Model =
     , currentVote : String
     , page : Page
     , error : Maybe Error
+    , voting : Bool
     , webSocketHost : String
     , serverError : Maybe ServerError
     , chainCommand : Maybe (Cmd Msg)
@@ -104,6 +105,7 @@ init flags =
       , currentVote = ""
       , page = HomePage
       , error = Nothing
+      , voting = False
       , webSocketHost = flags.websocketHost
       , chainCommand = Nothing
       , serverError = Nothing
@@ -195,6 +197,9 @@ decodeServerMsg json model =
             Result.withDefault "404" (decodeString (field "type" string) json)
     in
         case type_ of
+            "stop_voting" ->
+                { model | voting = False }
+
             "room_success" ->
                 let
                     roomNumber =
@@ -269,6 +274,7 @@ decodeServerMsg json model =
                                 , currentVote = ""
                                 , error = Nothing
                                 , players = resetVotes model.players
+                                , voting = True
                             }
 
                         _ ->
@@ -302,10 +308,18 @@ decodeServerMsg json model =
                                      else
                                         VotingPage
                                     )
+
+                                command =
+                                    (if List.all hasVoted players then
+                                        Just (stopVoting model)
+                                     else
+                                        Nothing
+                                    )
                             in
                                 { model
                                     | players = players
                                     , page = page
+                                    , chainCommand = command
                                 }
 
                         _ ->
@@ -401,6 +415,22 @@ sendGoal playerId model =
                     , ( "goal", JE.string goal )
                     , ( "room_number", JE.string model.roomNumber )
                     , ( "player_id", JE.string playerId )
+                    ]
+                )
+            )
+
+
+stopVoting : Model -> Cmd Msg
+stopVoting model =
+    let
+        host =
+            model.webSocketHost
+    in
+        WebSocket.send host
+            (JE.encode 0
+                (JE.object
+                    [ ( "type", JE.string "stop_voting" )
+                    , ( "room_number", JE.string model.roomNumber )
                     ]
                 )
             )
@@ -691,7 +721,11 @@ viewVotingPage model =
                                    else
                                     Button.accent
                                   )
-                                , Button.ripple
+                                , (if model.voting then
+                                    Button.ripple
+                                   else
+                                    Button.disabled
+                                  )
                                 , Options.onClick (UpdateVote vote)
                                 ]
                                 [ text vote ]
@@ -819,15 +853,16 @@ viewResultsPage model =
                 ]
             ]
         , Grid.cell [ Grid.size Grid.All 6 ]
-            (if model.user == Dealer then
-                (List.map
-                    renderPlayerWithVote
-                    model.players
-                )
-             else
-                []
-             -- Filler
-            )
+            [ Card.view []
+                [ Card.title []
+                    [ Card.head [] [ text <| "Votes: " ] ]
+                , Card.actions []
+                    (List.map
+                        renderPlayerWithVote
+                        model.players
+                    )
+                ]
+            ]
         , (if model.user == Dealer then
             Grid.cell [ Grid.size Grid.All 6 ]
                 [ Card.view []

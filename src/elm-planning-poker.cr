@@ -58,6 +58,12 @@ class VoteJson
   )
 end
 
+class StopJson
+  JSON.mapping(
+    room_number: String
+  )
+end
+
 ws "/app" do |socket|
   puts "In contact with socket: #{socket}"
 
@@ -117,6 +123,15 @@ ws "/app" do |socket|
       puts "New vote: #{vote}! Telling #{room.dealer}."
       json_message = ({"type": "new_vote", "vote": vote, "player_id": player_id}.to_json)
       room.dealer.send json_message
+    when "stop_voting"
+      stopjson = StopJson.from_json message
+      room_number = stopjson.room_number
+      room = rooms[room_number]
+      json_message = ({"type": "stop_voting"}.to_json)
+      room.players.each do |player|
+        puts "Sending stop voting to player #{player}."
+        player.send json_message
+      end
     else
       puts "ERROR: Could not understand message"
       puts json
@@ -125,12 +140,16 @@ ws "/app" do |socket|
 
   socket.on_close do |_|
     rooms.each_value do |room|
-      room.players.each do |player|
-        if player == socket
-          room.players.delete(player)
-          puts "Closing socket: #{socket}"
-          puts "Contacting dealer: #{room.dealer}"
-          room.dealer.send ({"type": "remove_player", "player_id": "#{player}"}.to_json)
+      if room.dealer == socket
+        rooms.delete(room)
+      else
+        room.players.each do |player|
+          if player == socket
+            room.players.delete(player)
+            puts "Closing socket: #{socket}"
+            puts "Contacting dealer: #{room.dealer}"
+            room.dealer.send ({"type": "remove_player", "player_id": "#{player}"}.to_json)
+          end
         end
       end
     end

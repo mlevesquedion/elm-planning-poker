@@ -16665,6 +16665,33 @@ var _user$project$Main$joinRoom = function (model) {
 					}
 				})));
 };
+var _user$project$Main$stopVoting = function (model) {
+	var host = model.webSocketHost;
+	return A2(
+		_elm_lang$websocket$WebSocket$send,
+		host,
+		A2(
+			_elm_lang$core$Json_Encode$encode,
+			0,
+			_elm_lang$core$Json_Encode$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'type',
+						_1: _elm_lang$core$Json_Encode$string('stop_voting')
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'room_number',
+							_1: _elm_lang$core$Json_Encode$string(model.roomNumber)
+						},
+						_1: {ctor: '[]'}
+					}
+				})));
+};
 var _user$project$Main$sendGoal = F2(
 	function (playerId, model) {
 		var goal = _elm_lang$core$String$isEmpty(model.nextGoal) ? model.currentGoal : model.nextGoal;
@@ -16845,7 +16872,9 @@ var _user$project$Main$Model = function (a) {
 											return function (l) {
 												return function (m) {
 													return function (n) {
-														return {user: a, players: b, userName: c, userId: d, roomNumber: e, currentGoal: f, nextGoal: g, currentVote: h, page: i, error: j, webSocketHost: k, serverError: l, chainCommand: m, mdl: n};
+														return function (o) {
+															return {user: a, players: b, userName: c, userId: d, roomNumber: e, currentGoal: f, nextGoal: g, currentVote: h, page: i, error: j, voting: k, webSocketHost: l, serverError: m, chainCommand: n, mdl: o};
+														};
 													};
 												};
 											};
@@ -16882,6 +16911,7 @@ var _user$project$Main$init = function (flags) {
 			currentVote: '',
 			page: _user$project$Main$HomePage,
 			error: _elm_lang$core$Maybe$Nothing,
+			voting: false,
 			webSocketHost: flags.websocketHost,
 			chainCommand: _elm_lang$core$Maybe$Nothing,
 			serverError: _elm_lang$core$Maybe$Nothing,
@@ -16910,6 +16940,10 @@ var _user$project$Main$decodeServerMsg = F2(
 				json));
 		var _p4 = type_;
 		switch (_p4) {
+			case 'stop_voting':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{voting: false});
 			case 'room_success':
 				var userId = A2(
 					_elm_lang$core$Json_Decode$decodeString,
@@ -17040,7 +17074,8 @@ var _user$project$Main$decodeServerMsg = F2(
 							nextGoal: '',
 							currentVote: '',
 							error: _elm_lang$core$Maybe$Nothing,
-							players: _user$project$Main$resetVotes(model.players)
+							players: _user$project$Main$resetVotes(model.players),
+							voting: true
 						});
 				} else {
 					return _elm_lang$core$Native_Utils.update(
@@ -17071,9 +17106,11 @@ var _user$project$Main$decodeServerMsg = F2(
 						},
 						model.players);
 					var page = A2(_elm_lang$core$List$all, _user$project$Main$hasVoted, players) ? _user$project$Main$ResultsPage : _user$project$Main$VotingPage;
+					var command = A2(_elm_lang$core$List$all, _user$project$Main$hasVoted, players) ? _elm_lang$core$Maybe$Just(
+						_user$project$Main$stopVoting(model)) : _elm_lang$core$Maybe$Nothing;
 					return _elm_lang$core$Native_Utils.update(
 						model,
-						{players: players, page: page});
+						{players: players, page: page, chainCommand: command});
 				} else {
 					return _elm_lang$core$Native_Utils.update(
 						model,
@@ -17418,7 +17455,7 @@ var _user$project$Main$viewVotingPage = function (model) {
 												_0: _elm_lang$core$Native_Utils.eq(vote, model.currentVote) ? _debois$elm_mdl$Material_Button$colored : _debois$elm_mdl$Material_Button$accent,
 												_1: {
 													ctor: '::',
-													_0: _debois$elm_mdl$Material_Button$ripple,
+													_0: model.voting ? _debois$elm_mdl$Material_Button$ripple : _debois$elm_mdl$Material_Button$disabled,
 													_1: {
 														ctor: '::',
 														_0: _debois$elm_mdl$Material_Options$onClick(
@@ -17824,7 +17861,39 @@ var _user$project$Main$viewResultsPage = function (model) {
 							_0: A2(_debois$elm_mdl$Material_Grid$size, _debois$elm_mdl$Material_Grid$All, 6),
 							_1: {ctor: '[]'}
 						},
-						_elm_lang$core$Native_Utils.eq(model.user, _user$project$Main$Dealer) ? A2(_elm_lang$core$List$map, _user$project$Main$renderPlayerWithVote, model.players) : {ctor: '[]'}),
+						{
+							ctor: '::',
+							_0: A2(
+								_debois$elm_mdl$Material_Card$view,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_debois$elm_mdl$Material_Card$title,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(
+												_debois$elm_mdl$Material_Card$head,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Votes: '),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_debois$elm_mdl$Material_Card$actions,
+											{ctor: '[]'},
+											A2(_elm_lang$core$List$map, _user$project$Main$renderPlayerWithVote, model.players)),
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {ctor: '[]'}
+						}),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$core$Native_Utils.eq(model.user, _user$project$Main$Dealer) ? A2(
